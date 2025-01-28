@@ -1,0 +1,7 @@
+baseURL = ''
+languageCode = 'en-us'
+title = 'Michele Schimd personal website'
+theme = 'hugo-theme-monochrome'
+
+[params]
+enable_math = true
