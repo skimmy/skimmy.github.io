@@ -24,3 +24,46 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Import highlight.js theme */
+@import 'highlight.js/styles/github-dark.css';
+
+/* Import KaTeX styles */
+@import 'katex/dist/katex.min.css';
+
+/* Ensure code blocks have proper styling */
+.prose pre {
+  @apply bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto;
+}
+
+.prose pre code {
+  @apply bg-transparent text-gray-100;
+}
+
+.prose code {
+  @apply bg-gray-100 text-gray-900 px-1 py-0.5 rounded text-sm;
+}
+
+.prose pre code {
+  @apply bg-transparent px-0 py-0;
+}
+
+/* Highlight.js overrides */
+.hljs {
+  @apply bg-gray-900 text-gray-100 p-4 rounded-lg;
+}
+
+/* Math display styles */
+.katex-display {
+  @apply my-4;
+}
+
+/* Inline code in prose */
+.prose :not(pre) > code {
+  @apply bg-gray-100 text-gray-900 px-1 py-0.5 rounded text-sm;
+}
+
+/* Code blocks in prose */
+.prose pre {
+  @apply bg-gray-900 text-gray-100;
+}
