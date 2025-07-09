@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Nunito } from 'next/font/google'
 import './globals.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Nunito({ subsets: ['latin'], weight: "400" })
 
 export const metadata: Metadata = {
-  title: 'My Programming Blog',
-  description: 'A blog about programming and computer science',
+  title: 'Michele Schimd Blog',
+  description: 'A blog about AI, programming, computer science, teaching and lots more...',
 }
 
 export default function RootLayout({

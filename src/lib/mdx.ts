@@ -54,8 +54,8 @@ export function getPostBySlug(slug: string): BlogPost | null {
       readingTime: readingTime(content).text,
       content,
     }
-  } catch (error) {
-    console.log(error)
+  } catch {
+    // console.log(error)
     return null
   }
 }

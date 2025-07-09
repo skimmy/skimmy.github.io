@@ -1,20 +1,31 @@
 import Link from 'next/link'
 
+
+const navMenu = [
+  {
+    text: "Home",
+    link: "/"  
+  },
+  {
+    text: "Blog",
+    link: "/blog"
+  },
+  {
+    text: "About",
+    link: "/about"
+  }
+]
+
 export default function Header() {
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-gray-50 shadow-sm border-b">
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
           <Link href="/" className="text-xl font-bold">
             My Blog
           </Link>
           <div className="flex space-x-6">
-            <Link href="/" className="hover:text-blue-600">
-              Home
-            </Link>
-            <Link href="/blog" className="hover:text-blue-600">
-              Blog
-            </Link>
+            {navMenu.map((item, index) => (<Link key={index} href={item.link} className="hover:text-blue-600">{item.text}</Link>))}
           </div>
         </nav>
       </div>
