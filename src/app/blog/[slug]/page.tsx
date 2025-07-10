@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import { useMDXComponents } from '@/mdx-components'
 import { getAllPosts, getPostBySlug } from '../../../lib/mdx'
 import Link from 'next/link'
 import remarkGfm from 'remark-gfm'
@@ -24,7 +25,7 @@ const mdxOptions = {
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
-  const posts = getAllPosts()
+  const posts = getAllPosts();
   return posts.map((post) => ({
     slug: post.slug,
   }))
@@ -37,11 +38,11 @@ interface PageProps {
 }
 
 export default async function BlogPost({ params }: PageProps) {
-  const { slug } = await params
-  const post = getPostBySlug(slug)
-
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+  const components = useMDXComponents({});
   if (!post) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -72,7 +73,7 @@ export default async function BlogPost({ params }: PageProps) {
         </header>
         
         <div className="prose prose-lg dark:prose-invert max-w-none prose-pre:bg-gray-900 prose-pre:text-gray-100">
-          <MDXRemote source={post.content} options={mdxOptions} />
+          <MDXRemote source={post.content} options={mdxOptions} components={components}/>
         </div>
       </article>
     </div>
