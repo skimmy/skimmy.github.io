@@ -51,7 +51,7 @@ export default async function BlogPost({ params }: PageProps) {
           <Link href="/blog" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
             ← Back to blog
           </Link>
-          <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+          <h1 className="text-4xl font-bold mb-4">{post.title} {post.draft ? "[DRAFT]" : ""}</h1>
           <div className="flex items-center text-gray-500 mb-4">
             <time>{post.date}</time>
             <span className="mx-2">•</span>
@@ -71,7 +71,7 @@ export default async function BlogPost({ params }: PageProps) {
           )}
         </header>
         
-        <div className="prose prose-lg max-w-none prose-pre:bg-gray-900 prose-pre:text-gray-100">
+        <div className="prose prose-lg dark:prose-invert max-w-none prose-pre:bg-gray-900 prose-pre:text-gray-100">
           <MDXRemote source={post.content} options={mdxOptions} />
         </div>
       </article>

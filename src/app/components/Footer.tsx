@@ -3,9 +3,9 @@ import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 border-t">
+    <footer className="bg-gray-50 dark:bg-gray-800 border-t">
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-gray-600">
+        <div className="text-center text-gray-400">
           <p className="align-middle">&copy; {(new Date().getFullYear())} Michele Schimd</p>
           <p>
             <Link href="https://github.com/skimmy/" target="_blank"><FaGithub className="mr-1 inline"/></Link>

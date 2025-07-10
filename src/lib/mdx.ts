@@ -12,6 +12,7 @@ export interface BlogPost {
   excerpt: string
   tags: string[]
   readingTime: string
+  draft: boolean
   content: string
 }
 
@@ -32,8 +33,14 @@ export function getAllPosts(): BlogPost[] {
         excerpt: data.excerpt,
         tags: data.tags || [],
         readingTime: readingTime(content).text,
+        draft: data.draft || false,
         content,
       }
+    }).filter(post => {
+      if (process.env.NODE_ENV === "production") {
+        return !post.draft;
+      }
+      return true;
     })
 
   return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -52,6 +59,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
       excerpt: data.excerpt,
       tags: data.tags || [],
       readingTime: readingTime(content).text,
+      draft: data.draft,
       content,
     }
   } catch {
