@@ -13,8 +13,8 @@ export default function BlogPage() {
           <article key={post.slug} className="border-b pb-6">
             <Link href={`/blog/${post.slug}`} className="block hover:opacity-75">
               <h2 className="text-2xl font-semibold mb-2">{post.title}</h2>
-              <p className="text-gray-600 mb-3">{post.excerpt}</p>
-              <div className="flex items-center text-sm text-gray-500 mb-2">
+              <p className="mb-3">{post.excerpt}</p>
+              <div className="flex items-center text-sm mb-2">
                 <time>{post.date}</time>
                 <span className="mx-2">•</span>
                 <span>{post.readingTime}</span>

@@ -43,7 +43,7 @@ export default function Stopwatch({
                 intervalRef.current = null;
             }
         };
-    }, [timer.running]);
+    }, [timer, onElapsedChange]);
 
     return (
         <div className={`${className}`}>
@@ -81,13 +81,3 @@ function formatTime(seconds: number): string {
     const secs = (seconds % 60).toFixed(0).toString().padStart(2, "0");
     return `${hrs}:${mins}:${secs}`;
 }
-
-//     export default function Stopwatch() {
-//     const [running, setRunning] = useState(false); 
-//     return (
-//         <div>
-//             Stopwatch here <span className={`${running ? "text-green-600" : "text-red-600"}`}>{running ? "Running" : "Stopped"}</span>
-//             <button className="mx-2 p-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600" onClick={() => setRunning(!running)}>Toggle</button>
-//         </div>
-//     )
-// }

@@ -1,0 +1,10 @@
+{
+    "name": "Cryptography",
+    "path": "crypto/",
+    "subject": "Security",
+    "tags": [
+        "Security", "Cryptography", "Systems"
+    ],
+    "description": "",
+    "state": "published"
+}

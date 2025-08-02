@@ -1,30 +1,32 @@
 import type { NextConfig } from "next";
+import createMDX from '@next/mdx';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeKatex from 'rehype-katex';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   output: "export",
   trailingSlash: true,
   images: {
     unoptimized: true,
-  }
+  },
+  pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx']
 };
 
-const withMDX = require('@next/mdx')({
+const withMDX = createMDX({
   extension: /\.mdx?$/,
   options: {
-    remarkPlugins: [
-      require('remark-gfm'),
-      require('remark-math'),
-    ],
+    remarkPlugins: [remarkGfm, remarkMath],
     rehypePlugins: [
-      require('rehype-slug'),
-      require('rehype-autolink-headings'),
-      require('rehype-highlight'),
-      require('rehype-katex'),
+      rehypeSlug,
+      rehypeAutolinkHeadings,
+      rehypeHighlight,
+      rehypeKatex,
     ],
   },
-})
+});
 
-module.exports = withMDX(nextConfig);
-
-// export default nextConfig;
+export default withMDX(nextConfig);

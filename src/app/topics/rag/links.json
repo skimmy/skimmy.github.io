@@ -1,0 +1,30 @@
+[
+    {
+        "category": "Papers",
+        "weight": 10,
+        "links": [
+            {
+                "name": "Retrieval-Augmented Generation for Large Language Models: A Survey",
+                "url":  "https://arxiv.org/abs/2312.10997",
+                "description": "A survey paper discussing RAG and its variations in detail."
+            }
+        ]
+    },
+    {
+        "category": "Tutorials",
+        "weight": 30,
+        "links": [
+            {
+                "name": "Build a Retrieval Augmented Generation (RAG) App: Part 1",
+                "url":  "https://python.langchain.com/docs/tutorials/rag/",
+                "description": "Basic RAG with LangChain Python library."
+            },
+            {
+                "name": "Build an LLM RAG Chatbot With LangChain",
+                "url":  "https://realpython.com/build-llm-rag-chatbot-with-langchain/",
+                "description": "Real Python tutorial on building a chatbot with RAG and LangChain."
+            }
+        ]
+    }
+
+]

@@ -1,7 +1,5 @@
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
-import { useMDXComponents } from '@/mdx-components'
-import { getAllPosts, getPostBySlug } from '../../../lib/mdx'
 import Link from 'next/link'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -9,6 +7,11 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeKatex from 'rehype-katex'
+
+import { getAllPosts, getPostBySlug } from '@/lib/mdx'
+import Stopwatch from '@/app/components/ui/Stopwatch'
+import { PAGE_TITLE } from '@/styles/elements'
+import { ARTICLE_CONTAINER } from '@/styles/paging'
 
 // Configure MDX with plugins
 const mdxOptions = {
@@ -23,12 +26,14 @@ const mdxOptions = {
   },
 }
 
+const components = { Stopwatch };
+
 // Generate static params for all blog posts
 export async function generateStaticParams() {
   const posts = getAllPosts();
   return posts.map((post) => ({
     slug: post.slug,
-  }))
+  }));
 }
 
 interface PageProps {
@@ -40,19 +45,18 @@ interface PageProps {
 export default async function BlogPost({ params }: PageProps) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  const components = useMDXComponents({});
   if (!post) {
     notFound();
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className={ARTICLE_CONTAINER}>
       <article>
         <header className="mb-8">
           <Link href="/blog" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
             ← Back to blog
           </Link>
-          <h1 className="text-4xl font-bold mb-4">{post.title} {post.draft ? "[DRAFT]" : ""}</h1>
+          <h1 className={PAGE_TITLE}>{post.title} {post.draft ? "[DRAFT]" : ""}</h1>
           <div className="flex items-center text-gray-500 mb-4">
             <time>{post.date}</time>
             <span className="mx-2">•</span>

@@ -1,0 +1,10 @@
+{
+    "name": "Retrieval-Augmented Generation",
+    "path": "rag/",
+    "subject": "Generative AI",
+    "tags": [
+        "LLM", "RAG", "AI"
+    ],
+    "description": "",
+    "state": "draft"
+}

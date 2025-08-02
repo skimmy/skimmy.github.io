@@ -8,6 +8,10 @@ const navMenu = [
     link: "/"  
   },
   {
+    text: "Topics",
+    link: "/topics"
+  },
+  {
     text: "Blog",
     link: "/blog"
   },
