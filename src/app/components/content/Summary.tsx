@@ -1,6 +1,5 @@
 import { PARAGRAPH_TITLE } from "@/styles/elements";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import fs from "fs";
+import MarkdownRender from "./MarkdownRender";
 
 interface SummaryProps {
     filePath: string;
@@ -10,11 +9,10 @@ interface SummaryProps {
 
 export default function Summary({filePath, head="Summary", showError=true}: SummaryProps) {
     try {
-        const source = fs.readFileSync(filePath, 'utf8');
         return (
             <div>
                 {head && <h3 className={PARAGRAPH_TITLE}>{head}</h3>}
-                <MDXRemote source={source} />
+                <MarkdownRender url={filePath} />
             </div>)
     } catch (e) {
         console.log(e);

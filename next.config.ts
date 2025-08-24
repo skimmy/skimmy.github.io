@@ -6,6 +6,7 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
+import rehypeCallouts from "rehype-callouts";
 
 const nextConfig: NextConfig = {
   output: "export",
@@ -21,6 +22,7 @@ const withMDX = createMDX({
   options: {
     remarkPlugins: [remarkGfm, remarkMath],
     rehypePlugins: [
+      rehypeCallouts,
       rehypeSlug,
       rehypeAutolinkHeadings,
       rehypeHighlight,

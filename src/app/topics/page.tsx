@@ -1,7 +1,8 @@
 import { scanTopics, TopicItem } from "@/lib/scanTopics";
-import { PAGE_TITLE, SECTION_TITLE } from "@/styles/elements";
+import { LINK_DEFAULT, PAGE_TITLE, SECTION_TITLE } from "@/styles/elements";
 import { ARTICLE_CONTAINER } from "@/styles/paging";
 import Link from "next/link";
+import MarkdownRender from "../components/content/MarkdownRender";
 
 export default function Topics() {
     const topics = scanTopics();
@@ -13,17 +14,25 @@ export default function Topics() {
         return acc;
     }, {} as Record<string, TopicItem[]>)
     return(
-        <div className={ARTICLE_CONTAINER}>
+        <div className={`${ARTICLE_CONTAINER}`}>
             <h1 className={PAGE_TITLE}>Topics</h1>
-            <p>
-                In the <b>Topics</b> section, I gather notes, guides, tutorial, references, and other resources on various topics. Although this page presents topics divided by subject, topics are connected with the idea that it should represent an <i>organic</i> presentation. By design, topics are <b>not</b> linearly ordered (except in this &quot;index&quot; page), but they are linked together based on their content.
-            </p>
+            <div>
+                <MarkdownRender url="src/app/topics/topics.md" />
+            </div>
+            <div className="mt-2 mb-5">
+                <h3 className="text-md mb-0">Subjects</h3>
+                <div className="flex flex-col">
+                    {Object.entries(topicsBySubject).map(([subject]) => (
+                        <Link href={`#${subject}`} className={`${LINK_DEFAULT}`} key={subject}>{subject}</Link>
+                    ))}
+                </div>
+            </div>
             {Object.entries(topicsBySubject).map(([subject, subjectTopics]) => (
-                <div key={subject}>
+                <div id={subject} key={subject}>
                     <h2 className={SECTION_TITLE}>{subject}</h2>
                     {subjectTopics.map((topic) => (
-                        <div key={topic.fullPath}>
-                            <Link href={topic.path}>{topic.name}</Link>
+                        <div className="border-b-1 pb-4 my-5" key={topic.fullPath}>
+                            <Link href={`/topics/${topic.path}`} className={`${LINK_DEFAULT}`}>{topic.name}</Link>
                         </div>
                     ))}
                 </div>

@@ -1,0 +1,222 @@
+---
+title: "Retrieval-Augmented Generation (RAG) with LangChain and local Ollama"
+date: "2025-09-01"
+excerpt: "Short tutorial to build a simple RAG system using Python and the LangChain library to enhance generations from a local LLM run with Ollama."
+tags: ["RAG", "LLM", "LangChain"]
+repo: ""
+draft: true
+---
+
+Pre-trained Large Language Models (LLM), like ChatGPT, do a tremendous job at generating answers to our questions, re-organizing the information they acquired during training (the way they store information is nothing like a Wikipedia page). Often, we want models to use only part of such information or to use information they didn’t have access at training time (for example the internal documents of our organization). 
+
+If we want LLMs to focus only (in reality, mostly) on specific texts, we have two choices:
+
+1. **Fine-tuning** a pre-trained model or
+2. Setting up a **Retrieval-Augmented Generation (RAG)**.
+
+In this post, we focus on the second solution. This is the first of a series of posts on RAG. While here we cover the whole pipeline, subsequent posts will focus on specific parts.
+
+> [!TLDR]-
+> With RAG you can use your documents to enhance prompts for LLMs. LangChain offers tool for the entire pipeline: from loading and indexing documents, to submitting to the model. This post presents a simple application of RAG using LangChain and a local LLM run with Ollama. You can skip ad the end for the whole working code or you can dive into specific parts of the post:
+> - Indexing: where we load documents and store into a *vector store*.
+> - Retrieval: where we use the *query* to retrieve relevant documents from the *store*.
+> - Generation: where we use the *query* and the *retrieved documents* to build a prompt and query an LLM.
+
+## What is Retrieval-Augmented Generation (RAG) 👩🏼‍🏫
+
+The *prompt* used to query an LLM usually contains a *context* that steers text generation. For example:
+
+```
+During the second world war, who was the president of the United States?
+```
+
+contains the *question* `who was the president of the United States?` and the *context* `during the second world war`. Even a simple local LLM (`llama3.2:1b` with [Ollama](https://ollama.com/)) gives the correct answer
+
+```
+Franklin D. Roosevelt served as the President of the United States from 
+1933 to 1945 [...]
+```
+
+The same model gives a completely different answers if we omit the context. Asking `who was the president of the United States?` gives
+
+```
+As of my last update in 2023, the President of the United States is Joe 
+Biden. [...]
+```
+
+If you are analyzing historical documents on WWII, you would like the model to infer the context (i.e., WWII) from such documents. **Retrieval-Augmented Generation** is a way to automatically do this.
+
+**RAG uses previously indexed documents to build a context based on the query to which it is added to construct the final prompt for the LLM**.
+
+## Preliminaries
+
+I'll assume the you are familiar with Python and basic package management. Besides that, there are two things that you need to do before preparing for this guide
+
+1. Install [Ollama](https://ollama.com/) and download a model that suits your hardware (you can use commercial, paid models, like OpenAI, just swap the appropriate LangChain classes).
+2. Prepare a Python environment (a virtual environment is recommended) with all necessary dependencies `pip install langchain langchain-community langchainhub  langchain-ollama`
+
+You’re now ready to build a RAG application.
+
+## Indexing 🗂️
+
+The first step in creating a RAG system is to loadn and index the documents of interest. I demonstrate the potential of RAG using this [cat facts](https://huggingface.co/ngxson/demo_simple_rag_py/blob/main/cat-facts.txt) dataset that has already been cleaned and converted to plain text.
+
+
+
+> [!WARNING]
+> The quality of indexed documents is crucial for the performance of your RAG system. The way in which content is organized heavily impacts on the LLM responses.
+
+
+### Loading and splitting 📂
+
+First, we load all files to index, LangChain has a broad selection of [Document Loaders](https://python.langchain.com/docs/integrations/document_loaders/) (see also the [API Documentation](https://python.langchain.com/api_reference/community/document_loaders.html)), you won’t be short on options!
+
+```python
+from langchain.document_loaders.text import TextLoader
+
+file_path = "./cat-facts.txt"
+loader = TextLoader(file_path)
+docs = loader.load()
+```
+
+After loading, documents are *split* into *chunks*. Splitting helps overcoming some issues: unequal documents length, limited LLM context, … When documents are to be used with an LLM, it is a good idea to perform a *tokenization-based* split. To keep things simple, we split on newline separator `\n`, this is coherent with the content of our file. More on LangChain splitters can be found inthe [documentation](https://python.langchain.com/docs/concepts/text_splitters/).
+
+```python
+from langchain_text_splitters import CharacterTextSplitter
+text_splitter = CharacterTextSplitter(
+    separator="\n",
+    chunk_size=100,
+    chunk_overlap=0,
+    length_function=len,
+)
+
+all_splits = text_splitter.split_documents(docs)
+```
+
+I used short chunks (`chunk_size=100`) without overlap (`chunck_overlap=0`), but results may vary, you should experiment with these *hyperparameters* (welcome to the machine learning world!).
+
+
+
+> [!WARNING] 
+> This step may generate several warnings that splits exceed the 100 characters limits. I decided to ignore them, but it could be better to use higher `chunk_size`.
+
+
+### Storing vectors 🗄️
+
+Next comes indexing, where documents are transformed in *embedding vectors* to store in a *vector store* (so that they can be later retrieved). For such transformation, we need an *embedding model*, I uses `OllamaEmbeddings` since I’m using Ollama chat model, however, **it is not required to use an embedding that matches the chat model** since we will translate them back to text to create the prompt.
+
+```python
+from langchain_ollama import OllamaEmbeddings
+embeddings = OllamaEmbeddings(model="llama3.2:1b")
+```
+
+It is worth mentioning the model `llama3.2:1b` is running locally on my M1 laptop using Ollama. We are now ready to convert documents into vectors and put them in the store. In this example, I used `InMemoryVectorStore` from LangChain, but you can based on your needs, visit the  [LangChain Vector stores documentation](https://python.langchain.com/docs/integrations/vectorstores/).
+
+```python
+from langchain_core.vectorstores import InMemoryVectorStore
+vector_store = InMemoryVectorStore(embeddings)
+vector_store.add_documents(documents=all_splits)
+```
+
+## Retrieval 🔍
+
+Having stored our documents, we can use them to retrieve relevant information for any given query, we do that by running a *similarity search* on our store.
+
+```python
+query = "Were cats ever sent to space?"
+retrieved_docs = vector_store.similarity_search(query)
+docs_content = "\n\n".join(doc.page_content for doc in retrieved_docs)
+```
+
+Results are joined into a single text, with the retrieved documents separated by two newline `\n\n`. 
+
+## Generation 🤖
+
+Finally, we can use the original `query` and the retrieved documents to construct and present a *prompt* to our LLM. We could do this “manually”, but LangChain has a *hub* of pre-compiled prompts that we can use, in particular there is one for RAG
+
+```python
+from langchain import hub
+prompt = hub.pull("rlm/rag-prompt")
+prompt = prompt.invoke({"question": query, "context": docs_content})
+```
+
+In this case, e prompt is like a *template* that we need to fill out with the question and the context.
+
+```python
+from langchain_ollama import ChatOllama, OllamaEmbeddings
+llm = ChatOllama(model="llama3.2:1b")
+answer = llm.invoke(prompt)
+```
+
+In one case I got the following answer containing a useful first part and a less useful second part.
+
+```
+Yes, cats have been sent to space, with Felicette being the first, launched
+by France in 1963 and returning safely. The average cat food meal is equivalent
+to about five mice, suggesting that many cats are fed enough to sustain
+themselves. Despite their popularity, it's unclear how often or under what
+conditions cats are actually shown at fairs and exhibitions, but they have
+certainly been the subject of cat shows worldwide.
+```
+
+## Wrapping up 🌯
+
+With little preparation: installing [Ollama](https://ollama.com/download) and setting up a proper Python environment
+
+```bash
+# Optional (reccommended) create an environment
+python -m venv .venv
+source ./.venv/bin/activate # MAC and Linux
+# Install minimal dependencies
+pip install langchain langchain-community langchainhub  langchain-ollama
+```
+
+we can set up a first RAG application with under 40 lines of code
+
+```python
+# INDEXING 
+
+# Load document
+file_path = "./cat-facts.txt"
+loader = TextLoader(file_path)
+docs = loader.load()
+
+# Split doucment into smaller chunks
+text_splitter = CharacterTextSplitter(
+    separator="\n",
+    chunk_size=100,
+    chunk_overlap=0,
+    length_function=len,
+)
+all_splits = text_splitter.split_documents(docs)
+
+# Construct embeddings for the documents and store in memory
+embeddings = OllamaEmbeddings(model="llama3.2:1b")  
+vector_store = InMemoryVectorStore(embeddings)
+vector_store.add_documents(documents=all_splits)
+
+# RETRIEVAL
+
+# Query the storer for documents similar to the query
+query = "Were cats ever sent to space?"
+retrieved_docs = vector_store.similarity_search(query)
+docs_content = "\n\n".join(doc.page_content for doc in retrieved_docs)
+
+# GENERATION
+# Create a prompt
+prompt = hub.pull("rlm/rag-prompt")
+prompt = prompt.invoke({"question": query, "context": docs_content})
+
+# Create the chat and send the prompt
+llm = ChatOllama(model="llama3.2:1b")
+answer = llm.invoke(prompt)
+
+print(answer.content)
+```
+
+## Conclusions 👋🏼
+
+In this post I presented a simple RAG application that uses a text file and a locally running LLM perform an augmented text generation. This is an invaluable tool to start tinkering with some documents and Large Language Models without going through all the costs and issues of an entire fine tuning. I barely scratched the surface of the LangChain library and subsequent posts will focus on ways to make the above code more flexible, stay tuned 📻.
+
+
+

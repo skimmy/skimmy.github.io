@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { NAV_CONTAINER } from '@/styles/blocks'
 
 
 const navMenu = [
@@ -23,7 +24,7 @@ const navMenu = [
 
 export default function Header() {
   return (
-    <header className="bg-gray-50 dark:bg-gray-800 shadow-sm border-b">
+    <header className={`${NAV_CONTAINER}`}>
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center justify-between">
           <Link href="/" className="relative text-xl font-bold w-12 h-12">
