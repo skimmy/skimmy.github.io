@@ -8,18 +8,18 @@ const navMenu = [
     text: "Home",
     link: "/"  
   },
-  {
-    text: "Topics",
-    link: "/topics"
-  },
-  {
-    text: "Blog",
-    link: "/blog"
-  },
-  {
-    text: "About",
-    link: "/about"
-  }
+  // {
+  //   text: "Topics",
+  //   link: "/topics"
+  // },
+  // {
+  //   text: "Blog",
+  //   link: "/blog"
+  // },
+  // {
+  //   text: "About",
+  //   link: "/about"
+  // }
 ]
 
 export default function Header() {
