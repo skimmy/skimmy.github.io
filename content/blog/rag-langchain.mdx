@@ -76,10 +76,10 @@ The first step in creating a RAG system is to loadn and index the documents of i
 First, we load all files to be indexed. LangChain has a broad selection of [Document Loaders](https://python.langchain.com/docs/integrations/document_loaders/) and you won't be short on options! (see also the [API Documentation](https://python.langchain.com/api_reference/community/document_loaders.html)).
 
 ```python
-from langchain.document_loaders.text import TextLoader
+from langchain.document_loaders import TextLoader
 
 file_path = "./cat-facts.txt"
-loader = TextLoader(file_path)
+loader = TextLoader(file_path, encoding="utf8")
 docs = loader.load()
 ```
 
@@ -187,7 +187,7 @@ Here's the full code for our RAG application. You can copy, paste, and run this 
 ```python
 # IMPORTS
 from langchain import hub
-from langchain.document_loaders.text import TextLoader
+from langchain.document_loaders import TextLoader
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
@@ -196,7 +196,7 @@ from langchain_text_splitters import CharacterTextSplitter
 
 # Load document
 file_path = "./cat-facts.txt"
-loader = TextLoader(file_path)
+loader = TextLoader(file_path, encoding="utf8")
 docs = loader.load()
 
 # Split doucment into smaller chunks
@@ -237,9 +237,9 @@ print(answer.content)
 In this post I presented a simple RAG application that uses a text file and a locally running LLM to perform an augmented text generation. This is an invaluable tool to start tinkering with some documents and Large Language Models without going through all the costs and issues of an entire fine tuning. I barely scratched the surface of the LangChain library and subsequent posts will focus on ways to make the above code more flexible, stay tuned 📻.
 
 
-### 🐻 📆 Bear of the day: Brunbjørn (Brun) 
+### 🐻 📆 Bear of the day: Brunbjörn (Brun) 
 <div className="flex justify-center">
-<Image height="300" width="300" alt="Brunbjørn" src="/bears/brun-guitar.jpg"  />
+<Image height="300" width="300" alt="Brunbjörn" src="/bears/brun-guitar.jpg"  />
 </div>
 
 
