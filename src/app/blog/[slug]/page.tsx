@@ -1,15 +1,18 @@
 import { notFound } from 'next/navigation'
-  import { MDXRemote } from 'next-mdx-remote/rsc'
-
+import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getAllPosts, getPostBySlug } from '@/lib/mdx'
 import Stopwatch from '@/app/components/ui/Stopwatch'
-import { PAGE_TITLE, TAG_BADGE } from '@/styles/elements'
+import { EMPHASIS_ELEMENTS_WITH_HOVER, PAGE_TITLE, TAG_BADGE } from '@/styles/elements'
 import { ARTICLE_CONTAINER } from '@/styles/paging'
 import { BLOG_ARTICLE_BODY, BLOG_ARTICLE_INFO } from '@/styles/content'
 import { mdxOptions } from '@/lib/mdx-config'
+import Tags from '@/app/components/content/Tags'
+import Link from 'next/link'
+import Image from "next/image";
+import { FaGithub, FaGraduationCap } from 'react-icons/fa6'
 
 
-const components = { Stopwatch };
+const components = { Stopwatch, Image };
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
@@ -25,39 +28,51 @@ interface PageProps {
   }>
 }
 
+function TheoryLink() {
+  return(
+    <div className="flex items-center">
+      <FaGraduationCap className="inline mr-2" />
+      <span>Theory</span>
+    </div>
+  )
+}
+
+function RepoLink() {
+    return(
+    <div className="flex items-center">
+      <FaGithub className="inline mr-2" />
+      <span>Repo</span>
+    </div>
+  )
+}
+
 export default async function BlogPost({ params }: PageProps) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) {
     notFound();
   }
-
   return (
     <div className={ARTICLE_CONTAINER}>
       <article>
         <header className="mb-8">
           <h1 className={PAGE_TITLE}>{post.title} {post.draft ? "[DRAFT]" : ""}</h1>
-          <div className={`flex items-center ${BLOG_ARTICLE_INFO}`}>
+          <div className={`flex items-center gap-2 ${BLOG_ARTICLE_INFO}`}>
             <time>{post.date}</time>
-            <span className="mx-2">•</span>
+            <span>•</span>
             <span>{post.readingTime}</span>
-          </div>
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className={`${TAG_BADGE}`}
-                >
-                  {tag}
-                </span>
-              ))}
+            <div>{post.tags.length > 0 && <Tags tags={post.tags} tagStyle={TAG_BADGE} />}</div>
+            
+            <div className="flex ml-auto gap-2">
+              {post.repo && <div className={`${EMPHASIS_ELEMENTS_WITH_HOVER} rounded-full px-4`}><Link  href={post.repo} target="_blank"><RepoLink /></Link></div>}
+              {post.theorySlug && <div className={`${EMPHASIS_ELEMENTS_WITH_HOVER} rounded-full px-4`}><Link href={post.theorySlug}><TheoryLink /></Link></div>}
             </div>
-          )}
+          </div>
+          
         </header>
-        
+
         <div className={`${BLOG_ARTICLE_BODY}`}>
-          <MDXRemote source={post.content} options={mdxOptions} components={components}/>
+          <MDXRemote source={post.content} options={mdxOptions} components={components} />
         </div>
       </article>
     </div>

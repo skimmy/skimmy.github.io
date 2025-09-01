@@ -1,6 +1,79 @@
-# Retrieval-Augmented Generation (RAG)
+import Image from "next/image";
+import Link from "next/link";
 
-> [!hint]
-> Sometimes we need to take tests not having enough time to prepare. If we are lucky, the test is online and unsupervised. Then, the only obstacle is time, we have to be fast in finding answers. We prepare these test by carefully arranging our study material and devising the most efficient search strategy. When we see questions, we reach for the answers or for the relevant material and produce the answer. RAG is the equivalent of this strategy for LLMs.
+## Retrieval-Augmented Generation (RAG)
 
-RAG is a sort of **automatic enhancement** of prompts to feed to a Large Language Model (LLM).
+> [!hint] Analogy 
+> Sometimes we take tests without enough time to prepare. If we are lucky, a test is online and unsupervised and the only obstacle is time to find answers. We could prepare such a test carefully arranging material and devising an efficient search strategy. When we see a question, we reach for the answer on our material. RAG is the equivalent of this strategy for LLMs.
+
+RAG is a way to **automatically enhance** the prompts presented to Large Language Models (LLM). There are three main steps in RAG:
+1. **Indexing** the documents used to enhance the prompt are stored into a database as *embedding vectors*.
+2. **Retrieval** the database is searched for information that is relevant to the user query.
+3. **Generation** a prompt containing the original query and the retrieved *context* is submitted to an LLM.
+
+The next sections will explain in more details what happens during each of the three steps above. Below is reported a schematic representation of the RAG process.
+
+<div className="flex justify-center">
+<Image className="text-center bg-white p-4 mb-0 mt-0" src="/rag/RAG_diagram.svg" alt="Yin Yang for Theory and Practice" width="600" height="600"/>
+</div>
+<div className="flex justify-center text-base">Schematics representation of RAG.</div>
+
+<div className="flex justify-center text-gray-400 text-xs italic" >By Turtlecrown - Own work, CC BY-SA 4.0, <Link className="text-blue-400 hover:text-blue-500" href="https://commons.wikimedia.org/w/index.php?curid=150390279">Original</Link></div>
+
+## Indexing
+If you are asked to answer questions about some documents, you want to have an *index* that helps you find content relevant to such question (*query*). Such index should be created in advanced to be fast in *retrieving* information.
+
+In RAG all the documents that contain relevant information are indexed into a **vector database**, which is a special type of database designed to store **embedding vectors**. 
+
+<div className="flex justify-center">
+<Image className="text-center bg-white p-4 mb-0 mt-0" src="/rag/rag-indexing.svg" alt="Yin Yang for Theory and Practice" width="600" height="600"/>
+</div>
+<div className="flex justify-center text-base">
+<p className="mx-12">Indexing documents in RAG. The text `Bear Generation` is translated into a sequence of embedding vectors. The sequence is then stored into a *vector database*.</p>
+</div>
+
+
+The indexing involves the following phases:
+1. Pre-process documents transforming into plain text if needed (Embeddings and LLMs work with text based data);
+2. Chunk documents into smaller units (for example lines or paragraphs);
+3. Encode chunks into a sequence of embedding vectors; and
+4. Store embeddings into the vector database.
+
+## Retrieval
+When a query is issued by the user, the RAG system looks for relevant information on the vector database. The retrieved text is used to **augment** the prompt for the LLM. The phases in involved in retrieval are:
+1. Encode the query in embedding vectors using the same encodings used during indexing;
+2. Search within the database using the encoded query;
+3. Decode retrieved embedding vectors into text;
+4. Construct a text prompt for the LLM.
+
+<div className="flex justify-center">
+<Image className="text-center bg-white p-4 mb-0 mt-0" src="/rag/rag-retrieve.svg" alt="Yin Yang for Theory and Practice" width="600" height="600"/>
+</div>
+<div className="flex justify-center text-base">
+<p className="mx-12">Retrieval in RAG.</p>
+</div>
+
+
+> [!NOTE]
+> Often, the vector database already includes the encoding and decoding (steps 1. and 3. above).
+
+> [!NOTE]
+> Because LLMs translate text back into embeddings, it may seem natural to ask why are we decode retrieved embeddings back to text. There are several reasons for this:
+> - We may not have access to the post-embedding part of the LLM (for example when using public models like ChatGPT);
+> - The embedding used by LLM and by the database may be different.
+
+## Generation
+The final step is simply the submission of the original query along with the **context**, which is the text obtained in the retrieval step. 
+
+It may be useful to create a prompt that clearly states what is the context and what is they query.
+
+```
+Given the following contextual information
+<<<PUT HERE CONTEXT>>>
+
+Answer the following query
+<<<PUT HERE QUERY>>>
+```
+
+This example shows how context and query are well identified (also using `<<< ... >>>` separators) ad separated to help the LLM constructing an answer.
+
