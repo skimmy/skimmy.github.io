@@ -4,7 +4,7 @@ import Link from "next/link";
 ## Retrieval-Augmented Generation (RAG)
 
 > [!hint] Analogy 
-> Sometimes we take tests without enough time to prepare. If we are lucky, a test is online and unsupervised and the only obstacle is time to find answers. We could prepare such a test carefully arranging material and devising an efficient search strategy. When we see a question, we reach for the answer on our material. RAG is the equivalent of this strategy for LLMs.
+> Sometimes we take tests without enough time to prepare. If we are lucky, the test is online and unsupervised, the only obstacle is time to find answers. We could prepare such a test carefully arranging material and devising an efficient search strategy. When we see a question, we reach for the answer on our material. RAG is the equivalent of this strategy for LLMs.
 
 RAG is a way to **automatically enhance** the prompts presented to Large Language Models (LLM). There are three main steps in RAG:
 1. **Indexing** the documents used to enhance the prompt are stored into a database as *embedding vectors*.
@@ -50,7 +50,7 @@ When a query is issued by the user, the RAG system looks for relevant informatio
 <Image className="text-center bg-white p-4 mb-0 mt-0" src="/rag/rag-retrieve.svg" alt="Yin Yang for Theory and Practice" width="600" height="600"/>
 </div>
 <div className="flex justify-center text-base">
-<p className="mx-12">Retrieval in RAG.</p>
+<p className="mx-12">When user submits a query to the system (say `Do you know any bear?`), the RAG system searches into the vector database for relevant documents. The resulting information (`Bear generation` and `Bear in mind` in the image) is included in the prompt submitted to the LLM.</p>
 </div>
 
 
@@ -58,9 +58,9 @@ When a query is issued by the user, the RAG system looks for relevant informatio
 > Often, the vector database already includes the encoding and decoding (steps 1. and 3. above).
 
 > [!NOTE]
-> Because LLMs translate text back into embeddings, it may seem natural to ask why are we decode retrieved embeddings back to text. There are several reasons for this:
+> Because LLMs already translate text to embeddings, it is natural to ask why are we need decoding the retrieved embeddings into text. There are several reasons for this:
 > - We may not have access to the post-embedding part of the LLM (for example when using public models like ChatGPT);
-> - The embedding used by LLM and by the database may be different.
+> - The embeddings used by LLM and by the database may be different.
 
 ## Generation
 The final step is simply the submission of the original query along with the **context**, which is the text obtained in the retrieval step. 
