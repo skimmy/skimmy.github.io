@@ -1,0 +1,161 @@
+---
+title: "Python context manager and the 'with' statement"
+date: "2025-10-07"
+excerpt: "Python context managers simplify resource management by providing automatic cleanup. You can easily define custom managers with just a few lines of code."
+tags: ["Python"]
+repo: "https://github.com/ProfSchimd/blog-python-context"
+draft: false
+---
+
+Our code often acquires resources (files, network connections, locks, etc.) that must be released when done. Way too often, we forget to release such resources, causing hard-to-find bugs. Even experienced developers can face unexpected interruptions that prevent proper cleanup.  Python **runtime contexts** (or simply *contexts*) offer a convenient way to handle these issues.
+
+> [!TLDR]-
+> Python **context managers** and the `with` statement provide automatic resource allocation and cleanup. A context is an object implementing `__enter__` and `__exit__` methods for allocation and cleanup, respectively. Upon entering the context, `__enter__` is called while exiting triggers a call to `__exit__`, even in case of exceptions. You can implement these methods directly, or use the `contextlib` module, which provides abstract classes and decorators to reduce boilerplate.
+
+## Coding without context 
+The most natural way to open a file in Python is the usual *open-use-close* sequence of operations.
+
+```python
+f = open("test.txt", "w")
+f.write("Hello")
+f.close()    
+```
+
+With this code, we may forget to close the file, which could lead to errors down the line. For example, what will this code write to `/tmp/aa.txt`?
+```python
+f = open("/tmp/aa.txt", "w")
+f.write("Hello")
+f2 = open("/tmp/aa.txt", "w")
+f2.write("Hell")
+f.close()
+f2.close()
+```
+
+In all my experiments, the file contains the string `Hello`. The `write` on `f2` does not have an effect, simply closing `f` before opening `f2` produces the expected output. You can easily imagine this code spread through several functions and/or files, making it a nightmare to debug (what the *Hello* is happening here?).
+
+Using context, we *enter* the context using the `with` statement and use the resource. 
+
+```python
+with open("test.txt", "r") as f:
+  # Entered the context
+  print(f.read())
+# Exited the context
+```
+
+The context takes care of releasing after leaving the context (exiting the `with` block). It is still possible to create buggy code as the one above by opening `f2` within the context, but it becomes clearer that `f` is open within this context.
+
+> [!warning] 
+> Our code isn’t truly *concurrent*, there are no multiple threads accessing the same resources. Nonetheless, we run into problems because the actual writing happens only on close rather than on the actual call to `write`.
+
+## Context manager
+
+Entering and exiting contexts is managed by **context managers** — objects that implement `__enter__` and `__exit__` methods. It is also possible to use the `contextmanager` decorator from `contextlib` module if you don’t need a custom cleanup implementation.
+
+As an example, let's create a context manager that turns console printing red. We use ANSI codes to enable red coloring `\33[31;10m` and to reset to default `\33[0m`.
+
+```python
+class PrintRed:
+	def __enter__(self):
+		print("\033[31;10m", end="")
+		return self # don't forget this!
+
+	def __exit__(self, exc_type, exc_value, traceback):
+		print("\033[0m", end="")
+		return False
+
+print("Before context")
+with PrintRed() as c:
+	print("Within context...")
+	print("...more in context")
+print("After context")
+```
+
+This simple example illustrates the basic syntax and usage of context managers. First, we define an object `PrintRed` that has `__enter__` and `__exit__` methods, they implement resource allocation and cleanup, respectively. To use a context, we only need to create it in a `with` statement, the block that comes after can then use the variable `c`, which refers to the created instance.
+
+> [!note]
+> In the above example, the variable `c` is never used, this is a common case and the `with` statement works even if we remove the `as` part.
+> ```python
+>  with PrintRed():
+>    # block goes here
+> ```
+
+Outside the block, for the `with` statement, the object `c` is not valid and, more importantly, the `__exit__` method has been called.
+
+Although the above examples are quite simple, the built-in `contextlib` module allows us to define contexts even more elegantly.
+
+## Contextlib module
+
+The `contextlib` built-in module “provides utilities for common tasks involving the `with` statement” [[1]](https://docs.python.org/3/library/contextlib.html).
+
+### The `AbstractContextManager` class
+
+The first utility we discuss from `contextlib` is the abstract class `AbstractContextManager`, which defines a simple `__enter__` method returning `self` and leaves the implementation of `__exit__` abstract for the programmer to define it.
+
+```python
+from contextlib import AbstractContextManager
+import sqlite3
+
+class OpenDB(AbstractContextManager):
+    def __init__(self, db_path=".db.sqlite"):
+        self.db_path = db_path
+        self.db = sqlite3.connect(self.db_path)
+        
+    def add(self, content="Something to add"):
+        print(f"{content}\n will be added to the DB")
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.db.close()
+        return False
+        
+
+with OpenDB() as db:
+    db.add()
+```
+
+The logic to open a connection to the database is implemented in the `__init__` method. In this case, the `__enter__` method would simply return `self`, exactly what provided by `AbstractContextManager` implementation if `__enter__`.
+
+> [!info]Async support
+> The `contextlib` package supports asynchronous methods `__aenter__` and `__aexit__` through the class `AbstractAsyncContextManager`.
+
+Besides abstract classes, `contextlib` provides several utilities to deal with contexts in Python, [the reference](https://docs.python.org/3/library/contextlib.html) is the place to look for more on this. Next, we are going to understand what are and what can be used for the parameters in the `__exit__` method.
+
+## Parameters of `__exit__`
+
+Python contexts ensure resource cleanup, even if something goes wrong. Even if exceptions raise, we want cleanup code to be executed. To guarantee that, context managers invoke the `__exit__` function even if the block in `with` is exited due to an exception.
+
+When we arrive at `__exit__` by exception managing, the three parameters of `__exit__` contain all the useful information about the exception.
+
+- `exc_type` contains the *type* of exception, which is the class of `exc_value`.
+- `exc_value` contains the exception object, the one that you would normally catch.
+- `traceback` contains the traceback object associate with the exception (rarely used).
+
+Using these parameters, you can manage exceptions if appropriate or simply decide to propagate the exception after the cleanup. To propagate the exception, simply return `False` from `__exit__` to block (*swallow*) the exception return `True`.
+
+```python
+from contextlib import AbstractContextManager
+
+class IgnoreZeroDiv(AbstractContextManager):
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type.__name__ == 'ZeroDivisionError':
+            line = traceback.tb_lineno
+            print(f"Let's pretend you didn't divide by zero in line {line}")
+            return True
+        return False
+
+with IgnoreZeroDiv():
+    x = 1/0
+    print(f"We won't arrive here: {x}")
+```
+
+## Conclusion
+Context managers are one of Python's most elegant features for handling resources safely and cleanly. Whether implemented manually or through `contextlib`, they help reduce errors and make code more readable.
+
+## References
+
+- [1]: [`contextlib` — Utilities for with-statement contexts (Python documentation)](https://docs.python.org/3/library/contextlib.html)
+- [2]: [PEP 343 — The “with” Statement](https://peps.python.org/pep-0343/)
+
+### 🐻 📆 Bear of the day: Bagigi (Gigi) 
+<div className="flex justify-center">
+<Image height="300" width="300" alt="Bagigi (Gigi)" src="/bears/gigi.jpg"  />
+</div>
