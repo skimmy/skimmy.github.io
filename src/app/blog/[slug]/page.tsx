@@ -1,18 +1,16 @@
-import { notFound } from 'next/navigation'
-import { MDXRemote } from 'next-mdx-remote/rsc'
-import { getAllPosts, getPostBySlug } from '@/lib/mdx'
-import Stopwatch from '@/app/components/ui/Stopwatch'
-import { EMPHASIS_ELEMENTS_WITH_HOVER, PAGE_TITLE, TAG_BADGE } from '@/styles/elements'
-import { ARTICLE_CONTAINER } from '@/styles/paging'
-import { BLOG_ARTICLE_BODY, BLOG_ARTICLE_INFO } from '@/styles/content'
-import { mdxOptions } from '@/lib/mdx-config'
-import Tags from '@/app/components/content/Tags'
-import Link from 'next/link'
-import Image from "next/image";
-import { FaGithub, FaGraduationCap } from 'react-icons/fa6'
+import { notFound } from 'next/navigation';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import { getAllPosts, getPostBySlug } from '@/lib/mdx';
+import { EMPHASIS_ELEMENTS_WITH_HOVER, PAGE_TITLE, TAG_BADGE } from '@/styles/elements';
+import { ARTICLE_CONTAINER } from '@/styles/paging';
+import { BLOG_ARTICLE_BODY, BLOG_ARTICLE_INFO } from '@/styles/content';
+import { mdxOptions, useMDXComponents } from '@/mdx-components';
+import Tags from '@/app/components/content/Tags';
+import Link from 'next/link';
+
+import { FaGithub, FaGraduationCap } from 'react-icons/fa6';
 
 
-const components = { Stopwatch, Image };
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
@@ -25,7 +23,7 @@ export async function generateStaticParams() {
 interface PageProps {
   params: Promise<{
     slug: string
-  }>
+  }>;
 }
 
 function TheoryLink() {
@@ -72,7 +70,7 @@ export default async function BlogPost({ params }: PageProps) {
         </header>
 
         <div className={`${BLOG_ARTICLE_BODY}`}>
-          <MDXRemote source={post.content} options={mdxOptions} components={components} />
+          <MDXRemote source={post.content} options={mdxOptions} components={useMDXComponents()} />
         </div>
       </article>
     </div>
