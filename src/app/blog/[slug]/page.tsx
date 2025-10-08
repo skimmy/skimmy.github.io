@@ -1,15 +1,13 @@
-import { notFound } from 'next/navigation';
-import { MDXRemote } from 'next-mdx-remote/rsc';
+import Tags from '@/app/components/content/Tags';
 import { getAllPosts, getPostBySlug } from '@/lib/mdx';
+import { useMDXComponents as getMdxComponents, mdxOptions } from '@/mdx-components';
+import { BLOG_ARTICLE_BODY, BLOG_ARTICLE_INFO } from '@/styles/content';
 import { EMPHASIS_ELEMENTS_WITH_HOVER, PAGE_TITLE, TAG_BADGE } from '@/styles/elements';
 import { ARTICLE_CONTAINER } from '@/styles/paging';
-import { BLOG_ARTICLE_BODY, BLOG_ARTICLE_INFO } from '@/styles/content';
-import { mdxOptions, useMDXComponents } from '@/mdx-components';
-import Tags from '@/app/components/content/Tags';
+import { MDXRemote } from 'next-mdx-remote/rsc';
 import Link from 'next/link';
-
+import { notFound } from 'next/navigation';
 import { FaGithub, FaGraduationCap } from 'react-icons/fa6';
-
 
 
 // Generate static params for all blog posts
@@ -44,7 +42,7 @@ function RepoLink() {
   )
 }
 
-export default async function BlogPost({ params }: PageProps) {
+const BlogPost = async ({ params }: PageProps) => {
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) {
@@ -70,9 +68,11 @@ export default async function BlogPost({ params }: PageProps) {
         </header>
 
         <div className={`${BLOG_ARTICLE_BODY}`}>
-          <MDXRemote source={post.content} options={mdxOptions} components={useMDXComponents()} />
+          <MDXRemote source={post.content} options={mdxOptions} components={getMdxComponents()} />
         </div>
       </article>
     </div>
   )
 }
+
+export default BlogPost;

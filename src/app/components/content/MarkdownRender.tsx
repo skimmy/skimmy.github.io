@@ -1,6 +1,6 @@
 import { MDXRemote } from "next-mdx-remote/rsc"
 import fs from "fs"
-import { mdxOptions } from "@/lib/mdx-config";
+import { mdxOptions } from "@/mdx-components";
 
 interface MarkdownRenderProps {
     url: string
