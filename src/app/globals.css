@@ -74,6 +74,10 @@ body {
 
 @import "rehype-callouts/theme/obsidian";
 
+.callout {
+  line-height: 2rem;
+}
+
 /* Dark mode using CSS media query (works with Tailwind's media strategy) */
 @media (prefers-color-scheme: dark) {
   .callout {
