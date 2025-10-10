@@ -1,5 +1,6 @@
 import type { MDXComponents } from 'mdx/types'
 import Image from "next/image";
+import ImageWithCaption from './app/components/ui/ImageWithCaption';
 import Stopwatch from '@/app/components/ui/Stopwatch';
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -12,6 +13,9 @@ import type { Pluggable } from 'unified'
 
 
 const components: MDXComponents = {
+  img: ({ src, alt, title }) => (
+    <ImageWithCaption src={src} alt={alt} title={title} />
+  ),
   ul: ({ children, ...props }) => (
     <ul className="marker:text-inherit dark:marker:text-inherit" {...props}>
       {children}
