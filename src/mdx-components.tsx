@@ -13,6 +13,9 @@ import type { Pluggable } from 'unified'
 
 
 const components: MDXComponents = {
+  p: ({ children }) => (
+    <div className="my-3">{children}</div>
+  ),
   img: ({ src, alt, title }) => (
     <ImageWithCaption src={src} alt={alt} title={title} />
   ),
