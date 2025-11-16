@@ -1,0 +1,117 @@
+---
+title: "Understanding Breadth-First Search (BFS) in Python"
+date: "2025-11-16"
+excerpt: "A simple introduction to the Breadth-First Search (BFS) algorithm using Python. We’ll walk through the intuition, structure, and a working implementation with annotated code."
+repo: https://github.com/ProfSchimd/blog-bfs
+tags: ["Algorithms", "Graph Theory", "Python"]
+---
+
+Imagine you're standing at a subway station and want to know how many stops away each other station is. You'd first check all stations directly connected to yours, then the ones connected to those, and so on. That's the intuition behind BFS — it explores breadth-first, i.e., one "layer" of neighbors at a time. In this post, we'll introduce the BFS algorithm, walk through its steps, and implement it in Python.
+
+> [!TLDR]-
+>
+> Breadth-First Search (BFS) explores a graph level by level. Starting from a source node, it visits all of its immediate neighbors before moving to their neighbors. It's often used to find the shortest path in an unweighted graph or to explore connected components.
+
+Graphs are one of the most powerful data structures in computer science. They model networks — from friendships on social media to routes in Google Maps. To explore or search through a graph efficiently, we use **graph traversal** algorithms, one of such algorithm is **Breadth-First Search (BFS)**.
+
+## What is Breadth-First Search (BFS)?
+
+Formally, BFS starts from a source node `s` and explores all nodes reachable from it. It uses a queue (first-in, first-out — FIFO) to keep track of the next node to visit.
+
+Enough words, let's see some code. Here is a simple (not optimized) Python implementation, which is inspired by the BFS algorithm found in [Introduction to Algorithms](https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/).
+
+
+```python showLineNumbers
+def BFS(G, s):
+    for u in G.nodes.values():
+        u.color = "White"
+        u.dist = -1
+        u.pred = None
+    s.color = "Gray"
+    s.dist = 0
+    queue = []
+    queue.append(s)
+    while(len(queue) > 0):
+        v = queue.pop(0)
+        for u in v.neighbors:
+            if u.color == "White":
+                u.color = "Gray"
+                u.dist = v.dist + 1
+                u.pred = v
+                queue.append(u)
+            v.color = "Black"
+```
+The algorithms receives two input parameters
+- the input graph `G` and
+- the source node `s`.
+
+The algorithm makes some assumptions on its input parameters:
+- `G` has a `nodes` dictionary to iterate through its nodes;
+- each node has the `neighbors` field to iterate through its immediate neighbors nodes.
+
+Moreover, the algorithm uses the properties `color`, `dist`, and `pred` to store information that is used by the algorithm during its computation.
+
+## Walking through an example
+Let's see BFS in action with a simple example. Consider the non-directed graph $G$ defined by the following adjacency matrix (the order of nodes is `A, B, ..., E`) and depicted below.
+$$
+\begin{pmatrix}
+0 & 1 & 1 & 1 & 0 \\
+1 & 0 & 1 & 0 & 0 \\
+1 & 1 & 0 & 1 & 1 \\
+1 & 0 & 1 & 1 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+\end{pmatrix}
+$$
+
+<div>
+<SlideshowWithCaption slides={[
+    {
+      src: '/bfs-example/bfs-example-1.svg',
+      caption: 'In this graph, we want to all nodes starting from the <i>source</i> node <code>B</code>. Thus, BFS makes <code>B</code> gray and inserts it in the queue.'
+    },
+    {
+      src: '/bfs-example/bfs-example-2.svg',
+      caption: 'The first iteration extract <code>B</code> from the queue and explores its neighbors (blue edges). After coloring each neighbor gray and inserting them in queue, BFS colors <code>B</code> black.'
+    },
+    {
+      src: '/bfs-example/bfs-example-3.svg',
+      caption: 'The algorithm proceeds considering <code>A</code> and its neighbors. In this case, however, <code>C</code> is not processed because it is not white (see if in the <code>while</code> loop). Thus, only <code>D</code> is colored gray and put in the queue.'
+    },
+    {
+      src: '/bfs-example/bfs-example-4.svg',
+      caption: 'Next from the queue is <code>C</code> which has only <code>E</code> as a white neighbor. Thus, <code>E</code> is colored gray and put into the queue.'
+    },
+    {
+      src: '/bfs-example/bfs-example-5.svg',
+      caption: 'Node <code>D</code> has no white neighbors so it is simply colored black.'
+    },
+    {
+      src: '/bfs-example/bfs-example-6.svg',
+      caption: 'Again, <code>E</code> has only non-white neighbors and nothing happens, other then coloring it black. The algorithm now terminates since all nodes are black (that is, the queue is empty).'
+    }
+  ]} showThumbnails={false} captionPosition={"right"}/>
+
+</div>
+
+At the end of the BFS algorithm we have the following table.
+
+| Node | `dist` | `pred` |
+|------|--------|--------|
+| `A`  |    1   |   `B`  |
+| `B`  |    0   |   `-`  |
+| `C`  |    1   |   `B`  |
+| `D`  |    2   |   `A`  |
+| `E`  |    2   |   `C`  |
+
+For every node we have the distance in terms of the number of edges from the source node `B` (column `dist`) and the preceding node in the path from the source (column `pred`). For example, going from `D` to `B` involves passing through `A` and traversing two edges `(A,D)` and `(A,B)`. Notice that the source has distance zero from itself and there is no preceding node.
+
+> [!note]
+>
+> Although the above example uses an *undirected* graph, the algorithm above works also for *directed* graph. 
+
+## The spanning tree
+
+If the graph is connected and each node is reachable from each other node, the edges that are included in any of the paths from a node `u` to the source, constitute a *spanning tree* rooted at the source node (`B` in our example). In the picture below you can see this tree (we showed the tree obtained removed non-blue edges and a re-arrangement that makes it look more like a tree we are used to). 
+
+![The spanning tree produced by BFS. The tree obtained removed non-selected edges (left) and the same tree re-arranged to look more like a tree (right).](/bfs-example/bfs-spanning-tree.svg)
+

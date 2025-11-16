@@ -1,6 +1,7 @@
 import type { MDXComponents } from 'mdx/types'
 import Image from "next/image";
 import ImageWithCaption from './app/components/ui/ImageWithCaption';
+import SlideshowWithCaption from './app/components/ui/SlideshowWithCaption';
 import Stopwatch from '@/app/components/ui/Stopwatch';
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -34,6 +35,7 @@ const components: MDXComponents = {
 export function useMDXComponents(): MDXComponents {
   return {
     Image,
+    SlideshowWithCaption,
     Stopwatch,
     ...components,
   }
