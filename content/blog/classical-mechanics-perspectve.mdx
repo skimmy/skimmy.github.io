@@ -1,0 +1,78 @@
+---
+title: A perspective on classical mechanics
+draft: false
+date: "2025-11-23"
+tags: [Physics, Force, Energy]
+---
+
+As AI invades the computer science discourse, my interests started to shift somewhere else, math and physics. While I was reviewing classical mechanics I wanted to develop intuition on the concepts of force, energy, and momentum. During this process, I realized that, in some sense, Newton's laws (especially the second) aren't the most natural way to think about mechanics. This post gathers my thoughts on the matter, I hope you find them interesting.
+
+> [!warning] Disclaimer
+>
+> I'm not a physicist by training, I learnt basic physics in undergrad courses and continued reading and studying it for my own pleasure. Some of the reported facts may be imprecise and naïve. If you find any issue, please reach out and help improve this post and to advance the discussion.
+
+> [!tldr]-
+>
+> Physics is also about intuition and experience. We intuitively understand that a body hitting another body will, under certain circumstances, slow down and cause movement of the second body. The famous second Newton's law $F=ma$, however, doesn't really capture this intuition. This intuition is better captured by the concept of momentum $p=mv$, which is somehow related to the *impetus* an idea pre-dating Newton. Did Newton, with his laws, make physics more obscure and less intuitive?
+
+## Force and energy: a historical perspective
+
+When we talk about **force**, we have a general intuition mostly given by our daily experience with physical objects. When we push something, we say that we *exert a force*, which is also tangible to us as it requires some effort.
+
+However, when we look at Newton's second law 
+$$
+F = ma \tag{1}
+$$
+it is hard to see such intuition. First, we experience force without acceleration (sometimes even without motion), think about pushing a wall. Second, we observe changes in motion, even in absence of a recognizable force, think at Carling stones or Newton's balls. Where does our intuition fail?[^1]
+
+![Picture by Michal Jarmoluk from Pixabay](/img/newton-balls.jpg)
+
+### Before Newton and Galileo
+
+Human experience with physics predates Newton, therefore predates Equation (1). Back then, there should have been the idea that physical objects *exchange* some sort of quantity in order for one to come to rest and the other to move. This is what **impetus** theory tried to formalize, we may find impetus related more to the modern concept of momentum 
+$$
+p = mv \tag{2}
+$$
+then to the force in (1).
+
+Even today, this view appears more natural, a moving object possesses the ability to cause motion in some other object. In modern terminology we say that a moving object has **kinetic energy** 
+$$
+T = \frac{1}{2}mv^2 \tag{3}
+$$
+
+which, as we see, depends on the velocity. What did *force* Newton to introduce a new concept like the force?
+
+### Gravity
+
+While the impetus theory (momentum) works well when we think at physical objects interacting directly (stones, balls, hands, ...), it is quite difficult to see why a free falling body moves and gains speed without any direct interaction. Before Newton, *gravitas* was explained as the *natural tendency to move towards the center of Earth*. This tendency provides continuous *impetus*, which causes acceleration.
+
+The intrinsic property of objects to move toward Earth's center, may have prevented great minds to recognize the *universality* of the gravitational law. Newton succeeded in formalizing this, with its universal law of gravity 
+$$
+F = G \frac{m_1 m_2}{r^2}. \tag{4}
+$$
+
+This famous equation is a work of genius in each of its parts.
+
+- The fact that gravity depends on *both* masses says that *both* body move towards the other (although the movement of one, say the Earth, may be impossible to measure).
+
+- The fact that the distance has a square, means that there exists a **potential energy** 
+  $$
+  U = - G\frac{m_1 m_2}{r} \tag{5}
+  $$
+  that decreases in magnitude with the distance.[^2] The potential is a form of *energy* much the same as the kinetic energy, which suggests that the two things may be correlated. It is worth recalling that while we now recognize the force as the derivative of the potential, Newton developed calculus to solve orbital motion and only later Euler, Lagrange, and Hamilton will used calculus for energy and potentials.
+
+- The *universality* of 
+  $$
+  G = 6.67 \times 10^{-11} \ kg^{-1}s^{-2}m^3 \tag{6}
+  $$ 
+  is the icing on the cake. Newton conjectured that the same law with the same proportionality constant $G$ (he didn't give any value for $G$) holds for things on Earth and on space, small and big masses, and his conjecture was right!
+
+### From gravity to energy
+
+In some sense, we could say that, by introducing Equation (1), Newton took away some of the intuition from physics. If we only look at this law (which is probably the most taught physical equation), we may wonder what happens when one billiard ball hits another one at rest. As we have already mentioned, this is better solved by introducing the concepts of kinetic energy and momentum, which can be mathematically derived from the second Newton's law. This way of developing classical mechanics may give the false impression that energy and momentum are by-product of force, which in fact is not the case.
+
+This classical mechanics "hierarchy", from force to energy, is revised in quantum physics (and, to some extent, in relativity), where energy is considered the cause of "motion". This change of perspective may, surprisingly, be more intuitive than Newton's second law. Clearly, this does not degrade Newton's achievement. In fact quite the opposite is true, Newton's idea was more spectacular because it was, in some sense, less intuitive than the wrong impetus theory.
+
+[^1]: We assume (2) correct, although strictly speaking it is not. Classical mechanics, here, does not include relativistic effects and is different from quantum mechanics. Under these conditions, Newton's laws are correct. 
+
+[^2]: If the force were proportional to $\frac{1}{r}$ (i.e., without the square), its potential would depend as $\ln{r}$ from $r$. This potential increases as we move away from the mass source of the potential, which is clearly impossible.
