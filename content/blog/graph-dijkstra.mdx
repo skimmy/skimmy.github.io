@@ -1,0 +1,123 @@
+---
+title: "Understanding the Dijkstra Algorithm in Python"
+date: "2025-11-29"
+excerpt: "A gentle introduction to Dijkstra algorithm for computing shortest paths on weighted graphs. We'll explore the intuition, the data structures behind it, and a clean Python implementation."
+repo: https://github.com/ProfSchimd/blog-dijkstra
+tags: ["Algorithms", "Graph Theory", "Python"]
+draft: false
+---
+
+Imagine you're navigating a city with roads of different lengths. You want the *fastest* route from your home to every other place, not just the one with the fewest turns. **Dijkstra's algorithm** solves exactly this: it finds the *shortest path* from a source node to all other nodes in a graph, provided that all edges have non-negative weights.
+
+> [!TLDR]-
+>
+> Dijkstra's algorithm repeatedly selects the closest unvisited node and relaxes (updates) the distances to its neighbors. It computes shortest paths in graphs whose edge weights are non-negative. Dijkstra's algorithm is one of the most widely used algorithms in routing and navigation systems.
+
+## What is Dijkstra's Algorithm?
+
+Formally, Dijkstra's algorithm takes the following inputs:
+
+- a weighted graph $G$ with non-negative weights $w(u, v)$, and  
+- a source node $s$.
+
+It computes the shortest path from $s$ to any other node $v$. The algorithm is similar to [Breadth-First Search](/blog/graph-bfs/). Rather than using a simple queue (as in BFS), Dijkstra uses a **priority queue** ordered by the current best-known distance.
+
+### Python implementation
+
+Below is a simple (not optimized) implementation, inspired by the pseudocode in *Introduction to Algorithms* (CLRS). It uses Python's built-in `heapq` module to maintain a min-priority queue. This module doesn't provide a way to update priorities for elements in the queue, which is used in CLRS code. To overcome this issue, I used an implementation that keeps track of already visited nodes, inspired by [this post by Bex Tuychiev](https://www.datacamp.com/tutorial/dijkstra-algorithm-in-python), which I strongly recommend reading.
+
+```python showLineNumbers
+from collections import namedtuple
+from heapq import heappush, heappop
+
+DistPred = namedtuple("DistPred", ["dist", "pred"])
+INF = float("inf")
+
+def dijkstra(G, s):
+    table = [DistPred(INF, None)]*len(G)
+    table[s] = DistPred(0, None)
+    pq = []
+    visited = set({})
+    for i, u in enumerate(G):
+        heappush(pq, (table[i].dist, i))
+    while pq:
+        _, u = heappop(pq)
+        if u in visited:
+            continue
+        visited.add(u)
+        row = G[u]
+        for i, weight in enumerate(row):
+            if weight < INF:
+                new_dist = table[u].dist + weight
+                if table[i].dist > new_dist:
+                    table[i] = DistPred(new_dist, u)
+                    heappush(pq, (new_dist, i))
+    return table
+```
+
+> [!note]
+>
+> The above Python implementation uses a variable `INF` to indicate an *infinite* value. This is possible for `float` type that implements *IEEE 754* standard, where infinite value has a special encoding.
+
+> [!note]
+>
+> The above Python  implementation uses `namedtuple` from the `collections` module to make code more readable. The tuple used to store a pair `(distance, predecessor)` of the result table.
+
+## An example of Dijkstra
+
+Let's work out an example of Dijkstra's algorithm. Consider the directed graph $G$ defined by the following weight matrix (nodes are ordered alphabetically in the rows).
+$$
+\begin{pmatrix}
+\infty & 7 & 2 & 5 & \infty \\
+7 & \infty & 3 & \infty & \infty\\
+2 & 3 & \infty & 3 & 4\\
+5 & \infty & 3 & 1 & \infty \\
+\infty & \infty & 4 & \infty & \infty\\
+\end{pmatrix}
+$$
+
+
+<SlideshowWithCaption slides={[
+    {
+      src: '/dijkstra-example/dijkstra-example-1.svg',
+      caption: 'We want to compute the shortest path from the source <code>B</code> to <b>every</b> other node in the graph. The algorithm initializes all distances to infinity, except the source. Then, it inserts all nodes in a <i>priority queue</i>.'
+    },
+    {
+      src: '/dijkstra-example/dijkstra-example-2.svg',
+      caption: 'The algorithm extracts the lowest distance node, which must be the source <code>B</code> (the only one with non-infinite distance). Then Dijkstra\'s algorithm explores also neighbors, <code>A,C</code> in this example, updating distances.'
+    },
+    {
+      src: '/dijkstra-example/dijkstra-example-3.svg',
+      caption: 'Next node to extract is <code>C</code>, which has distance 3. Exploring its neighbors, the algorithm finds that going to <code>A</code> through <code>C</code> is shorter than directly from <code>B</code>. Hence, distance and <code>pred</code> of <code>A</code> are updated.'
+    },
+    {
+      src: '/dijkstra-example/dijkstra-example-4.svg',
+      caption: 'The next extracted node is <code>A</code>, with distance 5. Its neighbors <code>B</code> and <code>D</code> already have distances smaller than going through <code>A</code> thus, they are not updated.'
+    },
+    {
+      src: '/dijkstra-example/dijkstra-example-5.svg',
+      caption: 'Also for <code>D</code> (distance 6), requires no update either since the shortest path from <code>B</code> is through <code>C</code>.'
+    },
+    {
+      src: '/dijkstra-example/dijkstra-example-6.svg',
+      caption: 'Finally <code>E</code> (distance 7) requires no update neither, since the only path to reach it from <code>B</code> has already been discovered.'
+    },
+  ]} showThumbnails={false} captionPosition={"right"}/>
+
+  At the end of Dijkstra algorithm we have the following table.
+
+| Node | `dist` | `pred` |
+|------|--------|--------|
+| `A`  |    5   |   `C`  |
+| `B`  |    0   |   `-`  |
+| `C`  |    3   |   `B`  |
+| `D`  |    6   |   `C`  |
+| `E`  |    7   |   `C`  |
+
+## The Spanning tree
+
+If the graph is connected and every node is reachable from every other node, then the edges that appear in any path from a node `u` to the source form a *spanning tree* rooted at the source (`B` in our example). In the picture below, you can see this tree (we highlighted it by removing the non-blue edges and rearranging the layout to resemble a more familiar tree structure).
+
+
+![The spanning tree produced by Dijkstra. The tree obtained after removing non-selected edges (left) and the same tree re-arranged to look more like a tree (right).](/dijkstra-example/dijkstra-spanning-tree.svg)
+
